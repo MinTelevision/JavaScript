@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="../登录滑动验证/iconfont/iconfont.css">
+    <style>
+        *{margin: 0;padding: 0;}
+        body,html{height: 100%;}
+        #box,#vbox{
+            width: 260px;
+            height: 30px;
+            margin: auto;
+        }
+        #box{
+            height: 116px;
+            width: 260px;
+            margin-top: 50px;
+            background-color: #58bc58;
+            background: url(ver-2.png);
+            background-size: 100% 100%;
+            position: relative;
+        }
+        #sbox1{
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0,0,0,0.35);
+            border: 2px solid rgba(255,255,255,0.3);
+            box-sizing: border-box;
+        }
+        #sbox{
+            box-sizing: border-box;
+            width: 30px;
+            height: 30px;
+            overflow: hidden;
+            position: absolute;
+            background-size: 260px 116px !important;
+            border: 2px solid rgba(255,255,255,0.5);
+            transition: all .1s ease;
+        }
+        #vbox{
+            height: 30px;
+            margin-top: 10px;
+            border: 1px solid #c3c3c3;
+            border-radius: 24px;
+            background: #ece4dd;
+            box-shadow: 0 1px 1px rgba(12,10,10,0.2) inset;
+            position: relative; }
+        #verify{
+            width: 30px;
+            height: 30px;
+            border: 1px solid #c3c3c3;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            transition: all .1s ease;
+            color: white;
+            font-size: 12px;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+        }
+        #vbox span{
+            font-size: 12px;
+            position: absolute;
+            left: 90px;
+            line-height: 30px;
+            user-select: none;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function () {
+            var vbox = document.getElementById('vbox');
+            var verify = document.getElementById('verify');
+            var box = document.getElementById('box');
+            var sbox1 = document.getElementById('sbox1');
+            var sbox = document.getElementById('sbox');
+            var icon = document.getElementById('icon');
+            //需求
+            //1.先设置好小盒子小盒子的随机定位 
+            //2.实现滑动条的基本拖动功能
+            //3.设置鼠标松开时的验证
+            //4.验证失败滑动条回到原点
+
+            //所需的封装临界值,按比例移动函数
+            function getOffsetX(offset, min, max) {
+                if (offset < min) {
+                    offset = min;
+                } else if (offset > max) {
+                    offset = max;
+                }
+                return offset;
+            }
+
+            function scal(offsetx1, max1,max2) {
+                var scal = offsetx1 / max1;
+                //左侧运动的最大距离：大盒子宽度 - 小盒子宽度
+                var move = scal * max2;
+                return move;
+            }
+            
+
+            //验证小盒子的定位  随机的数值l*180 + 50  r*55 + 30
+            var sbox1l = Math.random() * 180 + 50;
+            var sbox1t = Math.random() * 55 + 30;
+            sbox1.style.left = sbox1l + 'px';
+            sbox1.style.top = sbox1t + 'px';
+            sbox.style.top = sbox1t + 'px';
+            //设置sbox截取的图片位置
+            sbox.style.background = 'url(ver-2.png) -' + sbox1l + 'px -' + sbox1t + 'px';
+
+            //
+            verify.onmousedown = function (ev) {
+                var ev = window.event || event;
+                var max = vbox.offsetWidth - verify.offsetWidth;
+                var downx = ev.clientX;
+                document.onmousemove = function (ev) {
+                    var movex = ev.clientX;
+                    var offsetx = getOffsetX(movex - downx, 0, max);
+                    verify.style.left = offsetx + 'px';
+                    var boxm = box.offsetWidth - sbox.offsetWidth;
+                    sbox.style.left = scal(offsetx,max,boxm) + 'px'; 
+                }
+                //鼠标松开验证事件,需要用到的字体 iconfont icon-zhengque
+                //iconfont icon-xiangyoujiantou
+                document.onmouseup = function(){
+                    document.onmousemove = null;
+                    var vboxl = verify.offsetLeft;
+                    if(vboxl > sbox1l -20 && vboxl < sbox1l +20){
+                        verify.style.backgroundColor = '#58bc58';
+                        icon.className = 'iconfont icon-zhengque';
+                        setTimeout(function(){
+                            location.reload();
+                        },1000);
+                    }else{
+                        verify.style.left = 0;
+                        sbox.style.left = 0;
+                        verify.style.backgroundColor = 'red';
+                        icon.className = "iconfont icon-huo";
+                        setTimeout(function () {
+                            verify.style.backgroundColor = ''; 
+                            icon.className = "iconfont icon-xiangyoujiantou";
+                        }, 300);
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div id="box">
+        <div id="sbox1"></div>
+        <div id="sbox"></div>
+    </div>
+    <div id="vbox">
+        <span>拖动以验证</span>
+        <div id="verify"><i id="icon" class="iconfont icon-xiangyoujiantou"></i></div>
+    </div>
+</body>
+
+</html>
